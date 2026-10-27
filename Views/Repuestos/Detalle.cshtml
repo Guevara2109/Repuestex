@@ -1,0 +1,137 @@
+@model DetalleViewModel
+@{
+    var r = Model.Repuesto;
+    ViewData["Title"] = r.Nombre;
+}
+
+<a href="javascript:history.back()" class="small text-decoration-none">&lt; Volver a resultados</a>
+
+<div class="card shadow-sm mt-2">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                @if (!string.IsNullOrEmpty(r.ImagenUrl))
+                {
+                    <img src="@r.ImagenUrl" alt="@r.Nombre" class="img-fluid" />
+                }
+                else
+                {
+                    <div class="bg-secondary-subtle text-muted d-flex align-items-center justify-content-center"
+                         style="height:140px">[FOTO REPUESTO]</div>
+                }
+            </div>
+            <div class="col-md-9">
+                <h1 class="h4">
+                    @r.Nombre
+                    <span class="badge @(r.Tipo == "Original" ? "text-bg-success" : "text-bg-danger") fs-6 align-middle">@r.Tipo</span>
+                </h1>
+                <p class="text-muted mb-2">
+                    N.º parte: <strong>@r.NumeroParte</strong> | Categoría: <strong>@r.Categoria</strong>
+                </p>
+                @if (!string.IsNullOrWhiteSpace(r.Descripcion))
+                {
+                    <p><strong>Descripción:</strong> @r.Descripcion</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mt-3" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-comp" type="button" role="tab">
+            Compatibilidad (@Model.Vehiculos.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-equiv" type="button" role="tab">
+            Equivalencias (@Model.Equivalencias.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-prov" type="button" role="tab">
+            Proveedores (@Model.Ofertas.Count)
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content bg-white border border-top-0 p-3">
+    <div class="tab-pane fade show active" id="tab-comp" role="tabpanel">
+        @if (Model.Vehiculos.Count == 0)
+        {
+            <p class="text-muted mb-0">Sin vehículos compatibles registrados.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-striped mb-0">
+                    <thead>
+                        <tr><th>Marca</th><th>Modelo</th><th>Año</th><th>Motor</th><th>Transmisión</th><th>Combustible</th><th>Nota</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model.Vehiculos)
+                        {
+                            <tr>
+                                <td>@v.Marca</td><td>@v.Modelo</td><td>@v.Anio</td><td>@v.Motor</td>
+                                <td>@v.Transmision</td><td>@v.Combustible</td><td>@v.Nota</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="tab-pane fade" id="tab-equiv" role="tabpanel">
+        @if (Model.Equivalencias.Count == 0)
+        {
+            <p class="text-muted mb-0">Sin equivalencias registradas.</p>
+        }
+        else
+        {
+            <table class="table table-sm table-striped mb-0">
+                <thead><tr><th>Número alterno</th><th>Fabricante</th></tr></thead>
+                <tbody>
+                    @foreach (var e in Model.Equivalencias)
+                    {
+                        <tr><td>@e.NumeroAlterno</td><td>@e.Fabricante</td></tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="tab-pane fade" id="tab-prov" role="tabpanel">
+        @if (Model.Ofertas.Count == 0)
+        {
+            <p class="text-muted mb-0">Ningún proveedor ofrece este repuesto por ahora.</p>
+        }
+        else
+        {
+            <table class="table table-sm table-striped mb-0">
+                <thead><tr><th>Proveedor</th><th>Precio referencial</th><th>Existencia</th><th>Actualizado</th></tr></thead>
+                <tbody>
+                    @foreach (var o in Model.Ofertas)
+                    {
+                        <tr>
+                            <td>@o.Proveedor</td>
+                            ToString("N2", System.Globalization.CultureInfo.InvariantCulture)
+                            <td>
+                                @if (o.Existencia > 0)
+                                {
+                                    <span class="badge text-bg-success">@o.Existencia unidades</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-danger">Agotado</span>
+                                }
+                            </td>
+                            <td class="small text-muted">@o.FechaActualizacion.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <p class="small text-muted mt-2 mb-0">Los precios son referenciales y pueden variar.</p>
+        }
+    </div>
+</div>

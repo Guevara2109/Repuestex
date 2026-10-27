@@ -1,8 +1,146 @@
+@model HomeViewModel
 @{
     ViewData["Title"] = "Inicio";
 }
-<div class="text-center py-5">
-    <h1 class="h3">Encuentra el repuesto correcto para tu vehículo</h1>
-    <p class="text-muted">Nissan · Toyota · Mitsubishi · Hyundai · Kia (2008-2026)</p>
-    <p class="text-muted"><em>Próximamente: búsqueda por vehículo (CU-03).</em></p>
+
+@if (TempData["Error"] is string aviso)
+{
+    <div class="alert alert-warning">@aviso</div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-danger">@Model.Error</div>
+}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h1 class="h4 text-center mb-4">Encuentra el repuesto correcto para tu vehículo</h1>
+
+        <form method="get" asp-controller="Repuestos" asp-action="Buscar">
+            <div class="row g-2 align-items-end">
+                <div class="col-md">
+                    <label class="form-label small fw-bold" for="IdMarca">Marca</label>
+                    <select id="IdMarca" name="IdMarca" class="form-select" required>
+                        <option value="">Selecciona</option>
+                        @foreach (var m in Model.Marcas)
+                        {
+                            <option value="@m.IdMarca">@m.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md">
+                    <label class="form-label small fw-bold" for="IdModelo">Modelo</label>
+                    <select id="IdModelo" name="IdModelo" class="form-select" required disabled>
+                        <option value="">Selecciona</option>
+                    </select>
+                </div>
+                <div class="col-md">
+                    <label class="form-label small fw-bold" for="Anio">Año</label>
+                    <select id="Anio" name="Anio" class="form-select" required disabled>
+                        <option value="">Selecciona</option>
+                    </select>
+                </div>
+                <div class="col-md">
+                    <label class="form-label small fw-bold" for="IdVehiculo">Versión</label>
+                    <select id="IdVehiculo" name="IdVehiculo" class="form-select" disabled>
+                        <option value="">Cualquiera</option>
+                    </select>
+                </div>
+                <div class="col-md-auto">
+                    <button class="btn btn-warning fw-bold">BUSCAR</button>
+                </div>
+            </div>
+        </form>
+
+        <form method="get" asp-controller="Repuestos" asp-action="Buscar" class="mt-3">
+            <div class="row justify-content-center">
+                <div class="col-md-7">
+                    <div class="input-group">
+                        <span class="input-group-text small">o busca por</span>
+                        <input type="text" name="Q" class="form-control" maxlength="100"
+                               placeholder="nombre / número de parte" required />
+                        <button class="btn btn-secondary">Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+
+<div class="row g-3">
+    @foreach (var c in Model.Categorias)
+    {
+        <div class="col-6 col-md-4 col-lg">
+            <a class="card text-center text-decoration-none h-100 shadow-sm"
+               asp-controller="Repuestos" asp-action="Buscar" asp-route-IdCategoria="@c.IdCategoria">
+                <div class="card-body fw-bold text-dark">@c.Nombre</div>
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const marca = document.getElementById('IdMarca');
+            const modelo = document.getElementById('IdModelo');
+            const anio = document.getElementById('Anio');
+            const version = document.getElementById('IdVehiculo');
+
+            const urlModelos = '@Url.Action("Modelos", "Catalogo")';
+            const urlAnios = '@Url.Action("Anios", "Catalogo")';
+            const urlVersiones = '@Url.Action("Versiones", "Catalogo")';
+
+            function limpiar(select, texto) {
+                select.innerHTML = '';
+                select.add(new Option(texto, ''));
+                select.disabled = true;
+            }
+
+            function llenar(select, datos) {
+                datos.forEach(function (d) { select.add(new Option(d.texto, d.id)); });
+                select.disabled = false;
+            }
+
+            async function cargar(url) {
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Error ' + resp.status);
+                return resp.json();
+            }
+
+            marca.addEventListener('change', async function () {
+                limpiar(modelo, 'Selecciona');
+                limpiar(anio, 'Selecciona');
+                limpiar(version, 'Cualquiera');
+                if (!marca.value) return;
+                try {
+                    llenar(modelo, await cargar(urlModelos + '?idMarca=' + encodeURIComponent(marca.value)));
+                } catch (e) {
+                    alert('No se pudieron cargar los modelos. Intenta de nuevo.');
+                }
+            });
+
+            modelo.addEventListener('change', async function () {
+                limpiar(anio, 'Selecciona');
+                limpiar(version, 'Cualquiera');
+                if (!modelo.value) return;
+                try {
+                    llenar(anio, await cargar(urlAnios + '?idModelo=' + encodeURIComponent(modelo.value)));
+                } catch (e) {
+                    alert('No se pudieron cargar los años. Intenta de nuevo.');
+                }
+            });
+
+            anio.addEventListener('change', async function () {
+                limpiar(version, 'Cualquiera');
+                if (!anio.value) return;
+                try {
+                    llenar(version, await cargar(urlVersiones + '?idModelo=' +
+                        encodeURIComponent(modelo.value) + '&anio=' + encodeURIComponent(anio.value)));
+                } catch (e) {
+                    alert('No se pudieron cargar las versiones. Intenta de nuevo.');
+                }
+            });
+        })();
+    </script>
+}

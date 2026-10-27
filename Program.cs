@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews();
 // Capa de datos
 builder.Services.AddSingleton<Db>();
 builder.Services.AddScoped<UsuarioRepository>();
+builder.Services.AddScoped<CatalogoRepository>();
 
 // Autenticacion por cookie (RF-02) con roles (RN-09)
 builder.Services
