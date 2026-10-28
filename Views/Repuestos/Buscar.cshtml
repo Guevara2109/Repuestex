@@ -2,145 +2,166 @@
 @{
     ViewData["Title"] = "Resultados";
     var f = Model.Filtro;
+    var n = 0;
+    bool puedeLimpiar = f.IdMarca is not null || f.IdModelo is not null || f.IdVehiculo is not null
+                        || !string.IsNullOrWhiteSpace(f.Q);
 }
 
-<form method="get" asp-controller="Repuestos" asp-action="Buscar">
-    <input type="hidden" name="IdMarca" value="@f.IdMarca" />
-    <input type="hidden" name="IdModelo" value="@f.IdModelo" />
-    <input type="hidden" name="Anio" value="@f.Anio" />
-    <input type="hidden" name="IdVehiculo" value="@f.IdVehiculo" />
-    <input type="hidden" name="Q" value="@f.Q" />
+<div class="container py-4">
+    <form method="get" asp-controller="Repuestos" asp-action="Buscar" data-autosubmit>
+        <input type="hidden" name="IdMarca" value="@f.IdMarca" />
+        <input type="hidden" name="IdModelo" value="@f.IdModelo" />
+        <input type="hidden" name="Anio" value="@f.Anio" />
+        <input type="hidden" name="IdVehiculo" value="@f.IdVehiculo" />
+        <input type="hidden" name="Q" value="@f.Q" />
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-        <div>
-            <h1 class="h5 mb-0">
-                @(string.IsNullOrEmpty(Model.Titulo) ? "Resultados" : "Resultados para: ")<strong>@Model.Titulo</strong>
-            </h1>
-            <span class="text-muted small">@Model.Total resultado(s)</span>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <label class="small" for="Orden">Ordenar:</label>
-            <select id="Orden" name="Orden" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
-                <option value="" selected="@(string.IsNullOrEmpty(f.Orden))">Nombre: A-Z</option>
-                <option value="nombre_desc" selected="@(f.Orden == "nombre_desc")">Nombre: Z-A</option>
-                <option value="precio_asc" selected="@(f.Orden == "precio_asc")">Precio: menor a mayor</option>
-                <option value="precio_desc" selected="@(f.Orden == "precio_desc")">Precio: mayor a menor</option>
-            </select>
-        </div>
-    </div>
+        <nav aria-label="Ruta">
+            <ol class="breadcrumb small mb-2">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Resultados</li>
+            </ol>
+        </nav>
 
-    <div class="row g-3">
-        <div class="col-md-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h6 fw-bold">FILTROS</h2>
-                    <hr class="my-2" />
-
-                    <p class="small fw-bold mb-1">Categoría</p>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="IdCategoria" id="cat-todas" value=""
-                               checked="@(f.IdCategoria is null)" />
-                        <label class="form-check-label small" for="cat-todas">Todas</label>
-                    </div>
-                    @foreach (var c in Model.Categorias)
-                    {
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="IdCategoria" id="cat-@c.IdCategoria"
-                                   value="@c.IdCategoria" checked="@(f.IdCategoria == c.IdCategoria)" />
-                            <label class="form-check-label small" for="cat-@c.IdCategoria">@c.Nombre</label>
-                        </div>
-                    }
-
-                    <p class="small fw-bold mt-3 mb-1">Tipo</p>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="Tipo" id="tipo-todos" value=""
-                               checked="@(string.IsNullOrEmpty(f.Tipo))" />
-                        <label class="form-check-label small" for="tipo-todos">Todos</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="Tipo" id="tipo-orig" value="Original"
-                               checked="@(f.Tipo == "Original")" />
-                        <label class="form-check-label small" for="tipo-orig">Original</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="Tipo" id="tipo-alt" value="Alterno"
-                               checked="@(f.Tipo == "Alterno")" />
-                        <label class="form-check-label small" for="tipo-alt">Alterno</label>
-                    </div>
-
-                    <p class="small fw-bold mt-3 mb-1">Disponibilidad</p>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="EnStock" id="en-stock" value="true"
-                               checked="@(f.EnStock)" />
-                        <label class="form-check-label small" for="en-stock">En stock</label>
-                    </div>
-
-                    <button class="btn btn-sm btn-warning w-100 mt-3">Aplicar filtros</button>
-                    <a class="btn btn-sm btn-link w-100" asp-controller="Home" asp-action="Index">Nueva búsqueda</a>
-                </div>
+        <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-3">
+            <div>
+                <h1 class="h4 fw-bold mb-1">@(string.IsNullOrEmpty(Model.Titulo) ? "Resultados" : "Resultados para")</h1>
+                @if (!string.IsNullOrEmpty(Model.Titulo))
+                {
+                    <span class="rx-vehicle-chip"><i class="bi bi-car-front-fill" aria-hidden="true"></i> @Model.Titulo</span>
+                }
+                <div class="text-secondary small mt-1">@Model.Total @(Model.Total == 1 ? "resultado" : "resultados")</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label class="small text-secondary" for="Orden">Ordenar por</label>
+                <select id="Orden" name="Orden" class="form-select form-select-sm rx-select w-auto" style="padding:.4rem 2rem .4rem .8rem">
+                    <option value="" selected="@(string.IsNullOrEmpty(f.Orden))">Nombre: A-Z</option>
+                    <option value="nombre_desc" selected="@(f.Orden == "nombre_desc")">Nombre: Z-A</option>
+                    <option value="precio_asc" selected="@(f.Orden == "precio_asc")">Precio: menor a mayor</option>
+                    <option value="precio_desc" selected="@(f.Orden == "precio_desc")">Precio: mayor a menor</option>
+                </select>
             </div>
         </div>
 
-        <div class="col-md-9">
-            @if (Model.Items.Count == 0)
-            {
-                <div class="alert alert-warning">
-                    <strong>Sin resultados.</strong> Prueba cambiando la versión, la categoría o los filtros.
+        <div class="row g-3">
+            <div class="col-lg-3">
+                <div class="rx-filters">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h6 fw-bold mb-0"><i class="bi bi-sliders" aria-hidden="true"></i> Filtros</h2>
+                        @if (puedeLimpiar)
+                        {
+                            <a class="small text-decoration-none" asp-controller="Repuestos" asp-action="Buscar"
+                               asp-route-IdMarca="@f.IdMarca" asp-route-IdModelo="@f.IdModelo" asp-route-Anio="@f.Anio"
+                               asp-route-IdVehiculo="@f.IdVehiculo" asp-route-Q="@f.Q">Limpiar</a>
+                        }
+                    </div>
+
+                    <div class="rx-filter-title">Categoría</div>
+                    <div class="rx-pills">
+                        <input type="radio" class="btn-check" name="IdCategoria" id="cat-todas" value="" autocomplete="off"
+                               checked="@(f.IdCategoria is null)" />
+                        <label class="rx-pill-btn" for="cat-todas">Todas</label>
+                        @foreach (var c in Model.Categorias)
+                        {
+                            <input type="radio" class="btn-check" name="IdCategoria" id="cat-@c.IdCategoria" value="@c.IdCategoria"
+                                   autocomplete="off" checked="@(f.IdCategoria == c.IdCategoria)" />
+                            <label class="rx-pill-btn" for="cat-@c.IdCategoria">
+                                @IconosCategoria.Para(c.Nombre)
+                            </label>
+                        }
+                    </div>
+
+                    <div class="rx-filter-title">Tipo</div>
+                    <div class="rx-pills">
+                        <input type="radio" class="btn-check" name="Tipo" id="tipo-todos" value="" autocomplete="off"
+                               checked="@(string.IsNullOrEmpty(f.Tipo))" />
+                        <label class="rx-pill-btn" for="tipo-todos">Todos</label>
+                        <input type="radio" class="btn-check" name="Tipo" id="tipo-orig" value="Original" autocomplete="off"
+                               checked="@(f.Tipo == "Original")" />
+                        <label class="rx-pill-btn" for="tipo-orig">Original</label>
+                        <input type="radio" class="btn-check" name="Tipo" id="tipo-alt" value="Alterno" autocomplete="off"
+                               checked="@(f.Tipo == "Alterno")" />
+                        <label class="rx-pill-btn" for="tipo-alt">Alterno</label>
+                    </div>
+
+                    <div class="rx-filter-title">Disponibilidad</div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" name="EnStock" id="en-stock" value="true"
+                               checked="@(f.EnStock)" />
+                        <label class="form-check-label small" for="en-stock">Solo en stock</label>
+                    </div>
+
+                    <noscript><button class="btn btn-rx btn-sm w-100 mt-3">Aplicar filtros</button></noscript>
+                    <a class="btn btn-outline-secondary btn-sm w-100 mt-3" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Nueva búsqueda
+                    </a>
                 </div>
-            }
-            else
-            {
-                foreach (var r in Model.Items)
+            </div>
+
+            <div class="col-lg-9">
+                @if (Model.Items.Count == 0)
                 {
-                    <div class="card shadow-sm mb-2">
-                        <div class="card-body d-flex align-items-center gap-3">
-                            @if (!string.IsNullOrEmpty(r.ImagenUrl))
-                            {
-                                <img src="@r.ImagenUrl" alt="@r.Nombre" style="width:80px;height:60px;object-fit:cover" />
-                            }
-                            else
-                            {
-                                <div class="bg-secondary-subtle text-muted small d-flex align-items-center justify-content-center"
-                                     style="width:80px;height:60px">[Foto]</div>
-                            }
-                            <div class="flex-grow-1">
-                                <div class="fw-bold">@r.Nombre</div>
-                                <div class="small text-muted">
-                                    N.º parte: <strong>@r.NumeroParte</strong>
-                                    <span class="badge @(r.Tipo == "Original" ? "text-bg-success" : "text-bg-danger")">@r.Tipo</span>
-                                    · @r.Categoria
-                                </div>
-                                @if (r.PrecioDesde is decimal precio)
+                    <div class="rx-empty">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <h2 class="h5 mt-3">Sin resultados</h2>
+                        <p class="text-secondary mb-3">Prueba cambiando la versión, la categoría o los filtros.</p>
+                        <a class="btn btn-rx" asp-controller="Home" asp-action="Index">Nueva búsqueda</a>
+                    </div>
+                }
+                else
+                {
+                    foreach (var r in Model.Items)
+                    {
+                        <a class="rx-item" style="--i:@(n++)" asp-controller="Repuestos" asp-action="Detalle" asp-route-id="@r.IdRepuesto">
+                            <div class="rx-thumb">
+                                @if (!string.IsNullOrEmpty(r.ImagenUrl))
                                 {
-                                    <div class="small fw-bold @((r.StockTotal ?? 0) > 0 ? "text-success" : "text-danger")">
-                                        ToString("N2", System.Globalization.CultureInfo.InvariantCulture)
-                                        - @((r.StockTotal ?? 0) > 0 ? "Disponible" : "Agotado")
-                                    </div>
+                                    <img src="@r.ImagenUrl" alt="@r.Nombre" />
                                 }
                                 else
                                 {
-                                    <div class="small text-muted">Sin precio registrado</div>
+                                    <i class="bi @IconosCategoria.Para(r.Categoria)" aria-hidden="true"></i>
                                 }
                             </div>
-                            <a class="btn btn-sm btn-outline-primary" asp-controller="Repuestos" asp-action="Detalle" asp-route-id="@r.IdRepuesto">Ver</a>
-                        </div>
-                    </div>
-                }
+                            <div class="rx-item-body">
+                                <div class="rx-item-title">@r.Nombre</div>
+                                <div class="rx-item-meta">
+                                    <span class="rx-code"><i class="bi bi-upc-scan" aria-hidden="true"></i> @r.NumeroParte</span>
+                                    <span class="rx-tag @(r.Tipo == "Original" ? "rx-tag-ok" : "rx-tag-alt")">@r.Tipo</span>
+                                    <span class="rx-cat-text"><i class="bi @IconosCategoria.Para(r.Categoria)" aria-hidden="true"></i> @r.Categoria</span>
+                                </div>
+                            </div>
+                            <div class="rx-item-price">
+                                @if (r.PrecioDesde is decimal precio)
+                                {
+                                    bool hay = (r.StockTotal ?? 0) > 0;
+                                    <div class="rx-price-label">Desde</div>
+                                    <div class="rx-price">$@precio.ToString("N2", CultureInfo.InvariantCulture)</div>
+                                    <span class="rx-pill @(hay ? "rx-pill-ok" : "rx-pill-no")">@(hay ? "Disponible" : "Agotado")</span>
+                                }
+                                else
+                                {
+                                    <span class="rx-pill rx-pill-none">Sin precio</span>
+                                }
+                            </div>
+                            <i class="bi bi-chevron-right rx-item-go" aria-hidden="true"></i>
+                        </a>
+                    }
 
-                @if (Model.TotalPaginas > 1)
-                {
-                    <nav class="mt-3">
-                        <ul class="pagination pagination-sm">
-                            @for (int i = 1; i <= Model.TotalPaginas; i++)
-                            {
-                                <li class="page-item @(i == Model.Pagina ? "active" : "")">
-                                    <button type="submit" name="Pagina" value="@i" class="page-link">@i</button>
-                                </li>
-                            }
-                        </ul>
-                    </nav>
+                    @if (Model.TotalPaginas > 1)
+                    {
+                        <nav class="mt-3" aria-label="Paginación">
+                            <ul class="pagination pagination-sm">
+                                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                                {
+                                    <li class="page-item @(i == Model.Pagina ? "active" : "")">
+                                        <button type="submit" name="Pagina" value="@i" class="page-link">@i</button>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    }
                 }
-            }
+            </div>
         </div>
-    </div>
-</form>
+    </form>
+</div>

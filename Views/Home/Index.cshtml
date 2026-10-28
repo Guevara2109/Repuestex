@@ -1,145 +1,330 @@
 @model HomeViewModel
 @{
     ViewData["Title"] = "Inicio";
+    var n = 0;
 }
 
-@if (TempData["Error"] is string aviso)
-{
-    <div class="alert alert-warning">@aviso</div>
-}
-@if (!string.IsNullOrEmpty(Model.Error))
-{
-    <div class="alert alert-danger">@Model.Error</div>
-}
+<section class="rx-hero">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="mb-2">Encuentra el repuesto correcto para tu vehículo</h1>
+                <p class="mb-0">Nissan, Toyota, Mitsubishi, Hyundai y Kia · modelos 2008 a 2026</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body p-4">
-        <h1 class="h4 text-center mb-4">Encuentra el repuesto correcto para tu vehículo</h1>
+<div class="container rx-search-wrap">
+    <div class="rx-search">
+        @if (TempData["Error"] is string aviso)
+        {
+            <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> @aviso
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-x-octagon-fill" aria-hidden="true"></i> @Model.Error
+            </div>
+        }
 
-        <form method="get" asp-controller="Repuestos" asp-action="Buscar">
-            <div class="row g-2 align-items-end">
-                <div class="col-md">
-                    <label class="form-label small fw-bold" for="IdMarca">Marca</label>
-                    <select id="IdMarca" name="IdMarca" class="form-select" required>
-                        <option value="">Selecciona</option>
-                        @foreach (var m in Model.Marcas)
-                        {
-                            <option value="@m.IdMarca">@m.Nombre</option>
-                        }
-                    </select>
+        <form method="get" asp-controller="Repuestos" asp-action="Buscar" id="formVehiculo" data-loading>
+            <div class="rx-chips mb-3">
+                <span class="rx-chips-label">Marcas</span>
+                @foreach (var m in Model.Marcas)
+                {
+                    <button type="button" class="rx-chip" data-marca="@m.IdMarca">@m.Nombre</button>
+                }
+            </div>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-sm-6 col-lg">
+                    <div class="rx-field">
+                        <label for="IdMarca"><span class="rx-step">1</span> Marca</label>
+                        <select id="IdMarca" name="IdMarca" class="form-select rx-select" required>
+                            <option value="">Selecciona</option>
+                            @foreach (var m in Model.Marcas)
+                            {
+                                <option value="@m.IdMarca">@m.Nombre</option>
+                            }
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md">
-                    <label class="form-label small fw-bold" for="IdModelo">Modelo</label>
-                    <select id="IdModelo" name="IdModelo" class="form-select" required disabled>
-                        <option value="">Selecciona</option>
-                    </select>
+                <div class="col-sm-6 col-lg">
+                    <div class="rx-field">
+                        <label for="IdModelo"><span class="rx-step">2</span> Modelo</label>
+                        <select id="IdModelo" name="IdModelo" class="form-select rx-select" required disabled>
+                            <option value="">Selecciona</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md">
-                    <label class="form-label small fw-bold" for="Anio">Año</label>
-                    <select id="Anio" name="Anio" class="form-select" required disabled>
-                        <option value="">Selecciona</option>
-                    </select>
+                <div class="col-sm-6 col-lg">
+                    <div class="rx-field">
+                        <label for="Anio"><span class="rx-step">3</span> Año</label>
+                        <select id="Anio" name="Anio" class="form-select rx-select" required disabled>
+                            <option value="">Selecciona</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md">
-                    <label class="form-label small fw-bold" for="IdVehiculo">Versión</label>
-                    <select id="IdVehiculo" name="IdVehiculo" class="form-select" disabled>
-                        <option value="">Cualquiera</option>
-                    </select>
+                <div class="col-sm-6 col-lg">
+                    <div class="rx-field">
+                        <label for="IdVehiculo"><span class="rx-step">4</span> Versión</label>
+                        <select id="IdVehiculo" name="IdVehiculo" class="form-select rx-select" disabled>
+                            <option value="">Cualquiera</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-auto">
-                    <button class="btn btn-warning fw-bold">BUSCAR</button>
+                <div class="col-12 col-lg-auto">
+                    <button class="btn btn-rx w-100" id="btnVehiculo"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
                 </div>
             </div>
         </form>
 
-        <form method="get" asp-controller="Repuestos" asp-action="Buscar" class="mt-3">
-            <div class="row justify-content-center">
-                <div class="col-md-7">
-                    <div class="input-group">
-                        <span class="input-group-text small">o busca por</span>
-                        <input type="text" name="Q" class="form-control" maxlength="100"
-                               placeholder="nombre / número de parte" required />
-                        <button class="btn btn-secondary">Buscar</button>
-                    </div>
+        <div class="rx-divider"><span>o</span></div>
+
+        <form method="get" asp-controller="Repuestos" asp-action="Buscar" id="formTexto" data-loading autocomplete="off">
+            <div class="rx-searchbox">
+                <div class="rx-input-wrap">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input type="text" name="Q" id="Q" class="form-control rx-searchbox-input" maxlength="100"
+                           placeholder="Buscar" aria-label="Buscar" required />
+                    <div id="sugerencias" class="rx-suggest" role="listbox"></div>
                 </div>
+                <button class="btn btn-rx">Buscar</button>
             </div>
         </form>
     </div>
-</div>
 
-<div class="row g-3">
-    @foreach (var c in Model.Categorias)
-    {
-        <div class="col-6 col-md-4 col-lg">
-            <a class="card text-center text-decoration-none h-100 shadow-sm"
-               asp-controller="Repuestos" asp-action="Buscar" asp-route-IdCategoria="@c.IdCategoria">
-                <div class="card-body fw-bold text-dark">@c.Nombre</div>
-            </a>
+    <h2 class="rx-section-title">Explora por categoría</h2>
+    <div class="row g-3">
+        @foreach (var c in Model.Categorias)
+        {
+            <div class="col-6 col-md-4 col-lg">
+                <a class="rx-cat" style="--i:@(n++)" asp-controller="Repuestos" asp-action="Buscar" asp-route-IdCategoria="@c.IdCategoria">
+                    <i class="bi @IconosCategoria.Para(c.Nombre)" aria-hidden="true"></i>
+                    <span>@c.Nombre</span>
+                </a>
+            </div>
+        }
+    </div>
+
+    <div class="row g-3 mt-2">
+        <div class="col-md-4">
+            <div class="rx-feature">
+                <div class="rx-feature-ico"><i class="bi bi-car-front" aria-hidden="true"></i></div>
+                <h3>Elige tu vehículo</h3>
+                <p>Marca, modelo, año y versión: así solo ves piezas que le sirven a tu auto.</p>
+            </div>
         </div>
-    }
+        <div class="col-md-4">
+            <div class="rx-feature">
+                <div class="rx-feature-ico"><i class="bi bi-arrow-left-right" aria-hidden="true"></i></div>
+                <h3>Revisa equivalencias</h3>
+                <p>Consulta los números de parte originales y alternos de cada repuesto.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="rx-feature">
+                <div class="rx-feature-ico"><i class="bi bi-shop" aria-hidden="true"></i></div>
+                <h3>Compara proveedores</h3>
+                <p>Mira el precio referencial y la existencia que tiene cada proveedor.</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script>
         (function () {
-            const marca = document.getElementById('IdMarca');
-            const modelo = document.getElementById('IdModelo');
-            const anio = document.getElementById('Anio');
-            const version = document.getElementById('IdVehiculo');
+            var marca = document.getElementById('IdMarca');
+            var modelo = document.getElementById('IdModelo');
+            var anio = document.getElementById('Anio');
+            var version = document.getElementById('IdVehiculo');
+            var boton = document.getElementById('btnVehiculo');
+            var chips = document.querySelectorAll('[data-marca]');
 
-            const urlModelos = '@Url.Action("Modelos", "Catalogo")';
-            const urlAnios = '@Url.Action("Anios", "Catalogo")';
-            const urlVersiones = '@Url.Action("Versiones", "Catalogo")';
+            var urlModelos = '@Url.Action("Modelos", "Catalogo")';
+            var urlAnios = '@Url.Action("Anios", "Catalogo")';
+            var urlVersiones = '@Url.Action("Versiones", "Catalogo")';
 
-            function limpiar(select, texto) {
-                select.innerHTML = '';
-                select.add(new Option(texto, ''));
-                select.disabled = true;
+            function campo(sel) { return sel.closest('.rx-field'); }
+
+            function listo() {
+                boton.classList.toggle('ready', !!(marca.value && modelo.value && anio.value));
             }
 
-            function llenar(select, datos) {
-                datos.forEach(function (d) { select.add(new Option(d.texto, d.id)); });
-                select.disabled = false;
+            function marcar(sel) {
+                campo(sel).classList.toggle('done', !!sel.value);
+                listo();
             }
 
-            async function cargar(url) {
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error('Error ' + resp.status);
-                return resp.json();
+            function limpiar(sel, texto) {
+                sel.innerHTML = '';
+                sel.add(new Option(texto, ''));
+                sel.disabled = true;
+                marcar(sel);
             }
 
-            marca.addEventListener('change', async function () {
+            function llenar(sel, datos) {
+                datos.forEach(function (d) { sel.add(new Option(d.texto, d.id)); });
+                sel.disabled = false;
+            }
+
+            async function cargar(sel, url, mensajeError) {
+                campo(sel).classList.add('is-loading');
+                try {
+                    var resp = await fetch(url);
+                    if (!resp.ok) throw new Error('Error ' + resp.status);
+                    llenar(sel, await resp.json());
+                    sel.focus();
+                } catch (e) {
+                    window.rxToast(mensajeError);
+                } finally {
+                    campo(sel).classList.remove('is-loading');
+                }
+            }
+
+            marca.addEventListener('change', function () {
+                chips.forEach(function (c) { c.classList.toggle('active', c.dataset.marca === marca.value); });
                 limpiar(modelo, 'Selecciona');
                 limpiar(anio, 'Selecciona');
                 limpiar(version, 'Cualquiera');
+                marcar(marca);
                 if (!marca.value) return;
-                try {
-                    llenar(modelo, await cargar(urlModelos + '?idMarca=' + encodeURIComponent(marca.value)));
-                } catch (e) {
-                    alert('No se pudieron cargar los modelos. Intenta de nuevo.');
-                }
+                cargar(modelo, urlModelos + '?idMarca=' + encodeURIComponent(marca.value),
+                    'No se pudieron cargar los modelos.');
             });
 
-            modelo.addEventListener('change', async function () {
+            modelo.addEventListener('change', function () {
                 limpiar(anio, 'Selecciona');
                 limpiar(version, 'Cualquiera');
+                marcar(modelo);
                 if (!modelo.value) return;
+                cargar(anio, urlAnios + '?idModelo=' + encodeURIComponent(modelo.value),
+                    'No se pudieron cargar los años.');
+            });
+
+            anio.addEventListener('change', function () {
+                limpiar(version, 'Cualquiera');
+                marcar(anio);
+                if (!anio.value) return;
+                cargar(version, urlVersiones + '?idModelo=' + encodeURIComponent(modelo.value) +
+                    '&anio=' + encodeURIComponent(anio.value), 'No se pudieron cargar las versiones.');
+            });
+
+            version.addEventListener('change', function () { marcar(version); });
+
+            chips.forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    marca.value = chip.dataset.marca;
+                    marca.dispatchEvent(new Event('change'));
+                });
+            });
+
+            if (marca.value) marca.dispatchEvent(new Event('change'));
+        })();
+
+        (function () {
+            var input = document.getElementById('Q');
+            var caja = document.getElementById('sugerencias');
+            var urlSug = '@Url.Action("Sugerencias", "Catalogo")';
+            var urlDetalle = '@Url.Action("Detalle", "Repuestos")';
+            var urlBuscar = '@Url.Action("Buscar", "Repuestos")';
+            var temporizador = null;
+            var controlador = null;
+            var indice = -1;
+
+            function cerrar() {
+                caja.style.display = 'none';
+                caja.innerHTML = '';
+                indice = -1;
+            }
+
+            function elementos() { return caja.querySelectorAll('.rx-sug-item'); }
+
+            function resaltar() {
+                elementos().forEach(function (el, i) { el.classList.toggle('active', i === indice); });
+            }
+
+            function pintar(datos, texto) {
+                caja.innerHTML = '';
+                indice = -1;
+                if (!datos.length) { caja.style.display = 'none'; return; }
+
+                datos.forEach(function (d) {
+                    var a = document.createElement('a');
+                    a.className = 'rx-sug-item';
+                    a.href = urlDetalle + '/' + d.id;
+
+                    var ico = document.createElement('div');
+                    ico.className = 'rx-sug-ico';
+                    ico.innerHTML = '<i class="bi bi-tools" aria-hidden="true"></i>';
+
+                    var info = document.createElement('div');
+                    var nombre = document.createElement('div');
+                    nombre.className = 'rx-sug-name';
+                    nombre.textContent = d.nombre;
+                    var sub = document.createElement('div');
+                    sub.className = 'rx-sug-sub';
+                    sub.textContent = d.parte + ' · ' + d.categoria + ' · ' + d.tipo;
+                    info.appendChild(nombre);
+                    info.appendChild(sub);
+
+                    a.appendChild(ico);
+                    a.appendChild(info);
+                    caja.appendChild(a);
+                });
+
+                var todos = document.createElement('a');
+                todos.className = 'rx-sug-item rx-sug-all';
+                todos.href = urlBuscar + '?Q=' + encodeURIComponent(texto);
+                todos.textContent = 'Ver todos los resultados';
+                caja.appendChild(todos);
+                caja.style.display = 'block';
+            }
+
+            async function consultar(texto) {
+                if (controlador) controlador.abort();
+                controlador = new AbortController();
                 try {
-                    llenar(anio, await cargar(urlAnios + '?idModelo=' + encodeURIComponent(modelo.value)));
-                } catch (e) {
-                    alert('No se pudieron cargar los años. Intenta de nuevo.');
+                    var resp = await fetch(urlSug + '?q=' + encodeURIComponent(texto), { signal: controlador.signal });
+                    if (!resp.ok) return;
+                    var datos = await resp.json();
+                    if (input.value.trim() !== texto) return;
+                    pintar(datos, texto);
+                } catch (e) { }
+            }
+
+            input.addEventListener('input', function () {
+                clearTimeout(temporizador);
+                var texto = input.value.trim();
+                if (texto.length < 2) { cerrar(); return; }
+                temporizador = setTimeout(function () { consultar(texto); }, 250);
+            });
+
+            input.addEventListener('keydown', function (e) {
+                var lista = elementos();
+                if (!lista.length) return;
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    indice = (indice + 1) % lista.length;
+                    resaltar();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    indice = (indice - 1 + lista.length) % lista.length;
+                    resaltar();
+                } else if (e.key === 'Enter' && indice >= 0) {
+                    e.preventDefault();
+                    window.location.href = lista[indice].href;
+                } else if (e.key === 'Escape') {
+                    cerrar();
                 }
             });
 
-            anio.addEventListener('change', async function () {
-                limpiar(version, 'Cualquiera');
-                if (!anio.value) return;
-                try {
-                    llenar(version, await cargar(urlVersiones + '?idModelo=' +
-                        encodeURIComponent(modelo.value) + '&anio=' + encodeURIComponent(anio.value)));
-                } catch (e) {
-                    alert('No se pudieron cargar las versiones. Intenta de nuevo.');
-                }
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.rx-input-wrap')) cerrar();
             });
         })();
     </script>

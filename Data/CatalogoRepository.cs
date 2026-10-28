@@ -185,6 +185,28 @@ public class CatalogoRepository
         return (items, items.FirstOrDefault()?.Total ?? 0);
     }
 
+    // ---------- Sugerencias mientras se escribe ----------
+    public async Task<List<RepuestoResumen>> ObtenerSugerenciasAsync(string texto)
+    {
+        const string sql = @"
+            SELECT TOP (6) r.id_repuesto, r.numero_parte, r.nombre, c.nombre AS categoria, r.tipo
+            FROM repuesto r
+            JOIN categoria c ON c.id_categoria = r.id_categoria
+            WHERE r.activo = 1
+              AND (r.nombre LIKE @qLike
+                   OR r.numero_parte LIKE @qLike
+                   OR EXISTS (SELECT 1 FROM equivalencia e
+                              WHERE e.id_repuesto = r.id_repuesto AND e.numero_alterno LIKE @qLike))
+            ORDER BY CASE WHEN r.nombre LIKE @qInicio OR r.numero_parte LIKE @qInicio THEN 0 ELSE 1 END, r.nombre";
+
+        string escapado = EscaparLike(texto);
+        string qLike = "%" + escapado + "%";
+        string qInicio = escapado + "%";
+
+        using var con = _db.Crear();
+        return (await con.QueryAsync<RepuestoResumen>(sql, new { qLike, qInicio })).ToList();
+    }
+
     // ---------- Detalle (CU-05, CU-06) ----------
     public async Task<RepuestoDetalle?> ObtenerDetalleAsync(int id)
     {

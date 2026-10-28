@@ -1,4 +1,9 @@
 @{
     ViewData["Title"] = "Error";
 }
-<div class="alert alert-danger">Ocurrió un error inesperado. Intenta de nuevo más tarde.</div>
+<div class="container py-5 text-center">
+    <i class="bi bi-emoji-frown" style="font-size:3rem;color:#b6c0cf" aria-hidden="true"></i>
+    <h1 class="h4 mt-3">Ocurrió un error inesperado</h1>
+    <p class="text-secondary">Intenta de nuevo en unos minutos.</p>
+    <a class="btn btn-rx" asp-controller="Home" asp-action="Index">Volver al inicio</a>
+</div>

@@ -62,4 +62,32 @@ public class CatalogoController : Controller
             return StatusCode(500);
         }
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Sugerencias(string? q)
+    {
+        if (string.IsNullOrWhiteSpace(q) || q.Trim().Length < 2)
+            return Json(Array.Empty<object>());
+
+        var texto = q.Trim();
+        if (texto.Length > 100) texto = texto[..100];
+
+        try
+        {
+            var datos = await _catalogo.ObtenerSugerenciasAsync(texto);
+            return Json(datos.Select(r => new
+            {
+                id = r.IdRepuesto,
+                nombre = r.Nombre,
+                parte = r.NumeroParte,
+                tipo = r.Tipo,
+                categoria = r.Categoria
+            }));
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error al obtener sugerencias");
+            return StatusCode(500);
+        }
+    }
 }
