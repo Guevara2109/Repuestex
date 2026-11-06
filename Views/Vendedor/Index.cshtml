@@ -1,0 +1,76 @@
+@model List<Repuestex.Models.RepuestoVendedor>
+@{
+    ViewData["Title"] = "Mis productos";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <h1 class="h3 fw-bold mb-0">Mis productos</h1>
+            <div class="text-secondary small">Repuestos que has publicado, con tu precio y existencia.</div>
+        </div>
+        <a class="btn btn-rx" asp-action="Crear"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo producto</a>
+    </div>
+
+    @if (TempData["Mensaje"] is string ok)
+    {
+        <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i> @ok
+        </div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> @error
+        </div>
+    }
+
+    <div class="rx-panel">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center text-secondary py-4">
+                <i class="bi bi-box-seam fs-1" aria-hidden="true"></i>
+                <p class="mt-2 mb-0">Todavía no has publicado productos. Usa «Nuevo producto» para empezar.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>N.º de parte</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Precio ref.</th>
+                            <th class="text-end">Existencia</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td><span class="rx-code-lg">@p.NumeroParte</span></td>
+                                <td>@p.Nombre</td>
+                                <td><i class="bi @IconosCategoria.Para(p.Categoria)" aria-hidden="true"></i> @p.Categoria</td>
+                                <td><span class="rx-tag @(p.Tipo == "Original" ? "rx-tag-ok" : "rx-tag-alt")">@p.Tipo</span></td>
+                                <td class="text-end">@(p.PrecioRef is decimal precio ? "$" + precio.ToString("N2", CultureInfo.InvariantCulture) : "—")</td>
+                                <td class="text-end">@(p.Existencia?.ToString() ?? "—")</td>
+                                <td class="text-end text-nowrap">
+                                    <a class="btn btn-sm btn-outline-secondary" asp-controller="Repuestos" asp-action="Detalle" asp-route-id="@p.IdRepuesto" title="Ver como lo ve el cliente"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                    <a class="btn btn-sm btn-outline-primary" asp-action="Editar" asp-route-id="@p.IdRepuesto"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+                                    <form asp-action="Eliminar" asp-route-id="@p.IdRepuesto" method="post" class="d-inline"
+                                          onsubmit="return confirm('¿Eliminar este producto? Dejará de aparecer en las búsquedas.');">
+                                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash" aria-hidden="true"></i> Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
