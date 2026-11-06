@@ -84,6 +84,13 @@ public class CuentaController : Controller
             return View(modelo);
         }
 
+        // Un vendedor sin proveedor asignado no puede operar (RN-12)
+        if (usuario.RolNombre == "Vendedor" && usuario.IdProveedor is null)
+        {
+            ModelState.AddModelError("", "Tu cuenta de vendedor no tiene un proveedor asignado. Contacta al administrador.");
+            return View(modelo);
+        }
+
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
@@ -91,11 +98,18 @@ public class CuentaController : Controller
             new(ClaimTypes.Email, usuario.Correo),
             new(ClaimTypes.Role, usuario.RolNombre)
         };
+
+        if (usuario.IdProveedor is int idProveedor)
+            claims.Add(new Claim("IdProveedor", idProveedor.ToString()));
+
         var identidad = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identidad));
 
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);
+
+        if (usuario.RolNombre == "Vendedor")
+            return RedirectToAction("Index", "Vendedor");
 
         return RedirectToAction("Index", "Home");
     }
