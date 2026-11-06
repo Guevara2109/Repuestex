@@ -1,0 +1,262 @@
+@model RepuestoFormViewModel
+@{
+    bool esNuevo = Model.IdRepuesto == 0;
+    ViewData["Title"] = esNuevo ? "Nuevo producto" : "Editar producto";
+}
+
+<div class="container py-4">
+    <nav class="mb-3">
+        <a class="rx-back" asp-action="Index"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a mis productos</a>
+    </nav>
+
+    <h1 class="h3 fw-bold mb-3">@ViewData["Title"]</h1>
+    <style>
+        .rx-form .rx-panel { height: auto; }
+    </style> 
+
+    <form class="rx-form" method="post" asp-action="@(esNuevo ? "Crear" : "Editar")" asp-route-id="@(esNuevo ? (int?)null : Model.IdRepuesto)" data-loading>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="rx-panel">
+                    <h2 class="h6 fw-bold mb-3">Datos del repuesto</h2>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="NumeroParte" class="form-label"></label>
+                            <input asp-for="NumeroParte" class="form-control" maxlength="40" />
+                            <div class="text-danger small"><span asp-validation-for="NumeroParte"></span></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Nombre" class="form-label"></label>
+                            <input asp-for="Nombre" class="form-control" maxlength="120" />
+                            <div class="text-danger small"><span asp-validation-for="Nombre"></span></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="IdCategoria" class="form-label"></label>
+                            <select asp-for="IdCategoria" class="form-select rx-select"
+                                    asp-items="@(new SelectList(Model.Categorias, "IdCategoria", "Nombre", Model.IdCategoria))">
+                                <option value="">Selecciona</option>
+                            </select>
+                            <div class="text-danger small"><span asp-validation-for="IdCategoria"></span></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Tipo" class="form-label"></label>
+                            <select asp-for="Tipo" class="form-select rx-select">
+                                <option value="Original">Original</option>
+                                <option value="Alterno">Alterno</option>
+                            </select>
+                            <div class="text-danger small"><span asp-validation-for="Tipo"></span></div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Descripcion" class="form-label"></label>
+                            <textarea asp-for="Descripcion" class="form-control" rows="3" maxlength="2000"></textarea>
+                            <div class="text-danger small"><span asp-validation-for="Descripcion"></span></div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="ImagenUrl" class="form-label"></label>
+                            <input asp-for="ImagenUrl" class="form-control" maxlength="255" placeholder="https://..." />
+                            <div class="text-danger small"><span asp-validation-for="ImagenUrl"></span></div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="NumerosAlternos" class="form-label"></label>
+                            <textarea asp-for="NumerosAlternos" class="form-control" rows="2" placeholder="Uno por línea (opcional)"></textarea>
+                            <div class="text-danger small"><span asp-validation-for="NumerosAlternos"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rx-panel mt-3">
+                    <h2 class="h6 fw-bold mb-1">Vehículos compatibles</h2>
+                    <p class="text-secondary small">Agrega al menos un vehículo (marca, modelo, año y versión).</p>
+
+                    <div class="row g-2 align-items-end">
+                        <div class="col-sm-6 col-lg-3">
+                            <label class="form-label small" for="vMarca">Marca</label>
+                            <select id="vMarca" class="form-select rx-select">
+                                <option value="">Selecciona</option>
+                                @foreach (var ma in Model.Marcas)
+                                {
+                                    <option value="@ma.IdMarca">@ma.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <label class="form-label small" for="vModelo">Modelo</label>
+                            <select id="vModelo" class="form-select rx-select" disabled><option value="">Modelo</option></select>
+                        </div>
+                        <div class="col-sm-6 col-lg-2">
+                            <label class="form-label small" for="vAnio">Año</label>
+                            <select id="vAnio" class="form-select rx-select" disabled><option value="">Año</option></select>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <label class="form-label small" for="vVersion">Versión</label>
+                            <div class="d-flex gap-2">
+                                    <select id="vVersion" class="form-select rx-select" disabled><option value="">Versión</option></select>
+                            </div>
+                            <div class="col-12">
+                                <button type="button" id="vAgregar" class="btn btn-rx btn-sm" disabled><i class="bi bi-plus-lg" aria-hidden="true"></i> Agregar vehículo</button>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <ul class="list-group mt-3" id="vLista">
+                        @foreach (var v in Model.VehiculosSeleccionados)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+                                <span>@v.Descripcion</span>
+                                <input type="hidden" name="IdsVehiculos" value="@v.IdVehiculo" />
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-quitar aria-label="Quitar vehículo"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                            </li>
+                        }
+                    </ul>
+                    <div class="text-secondary small mt-2" id="vVacio" @(Model.VehiculosSeleccionados.Count > 0 ? "hidden" : null)>Aún no has agregado vehículos.</div>
+                    <div class="text-danger small mt-1"><span asp-validation-for="IdsVehiculos"></span></div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="rx-panel">
+                    <h2 class="h6 fw-bold mb-3">Tu oferta</h2>
+                    <div class="mb-3">
+                        <label asp-for="PrecioRef" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="PrecioRef" type="number" step="0.01" min="0.01" class="form-control" />
+                        </div>
+                        <div class="text-danger small"><span asp-validation-for="PrecioRef"></span></div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Existencia" class="form-label"></label>
+                        <input asp-for="Existencia" type="number" step="1" min="0" class="form-control" />
+                        <div class="text-danger small"><span asp-validation-for="Existencia"></span></div>
+                    </div>
+                    <div class="small text-secondary mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i> Los precios son referenciales y pueden variar.</div>
+                    <button class="btn btn-rx w-100"><i class="bi bi-check2" aria-hidden="true"></i> @(esNuevo ? "Crear producto" : "Guardar cambios")</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var selMarca = document.getElementById('vMarca');
+    var selModelo = document.getElementById('vModelo');
+    var selAnio = document.getElementById('vAnio');
+    var selVersion = document.getElementById('vVersion');
+    var btnAgregar = document.getElementById('vAgregar');
+    var lista = document.getElementById('vLista');
+    var vacio = document.getElementById('vVacio');
+    var urls = {
+        modelos: '@Url.Action("Modelos", "Catalogo")',
+        anios: '@Url.Action("Anios", "Catalogo")',
+        versiones: '@Url.Action("Versiones", "Catalogo")'
+    };
+
+    function llenar(sel, items, texto) {
+        sel.innerHTML = '';
+        var o = document.createElement('option');
+        o.value = '';
+        o.textContent = texto;
+        sel.appendChild(o);
+        items.forEach(function (i) {
+            var op = document.createElement('option');
+            op.value = i.id;
+            op.textContent = i.texto;
+            sel.appendChild(op);
+        });
+        sel.disabled = items.length === 0;
+    }
+
+    function cargar(url, sel, texto) {
+        return fetch(url)
+            .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+            .then(function (datos) { llenar(sel, datos, texto); })
+            .catch(function () {
+                llenar(sel, [], texto);
+                if (window.rxToast) window.rxToast('No se pudieron cargar las opciones.');
+            });
+    }
+
+    function textoElegido(sel) {
+        return sel.selectedOptions.length ? sel.selectedOptions[0].textContent : '';
+    }
+
+    function actualizarVacio() {
+        vacio.hidden = lista.children.length > 0;
+    }
+
+    selMarca.addEventListener('change', function () {
+        llenar(selModelo, [], 'Modelo');
+        llenar(selAnio, [], 'Año');
+        llenar(selVersion, [], 'Versión');
+        btnAgregar.disabled = true;
+        if (selMarca.value) cargar(urls.modelos + '?idMarca=' + encodeURIComponent(selMarca.value), selModelo, 'Modelo');
+    });
+
+    selModelo.addEventListener('change', function () {
+        llenar(selAnio, [], 'Año');
+        llenar(selVersion, [], 'Versión');
+        btnAgregar.disabled = true;
+        if (selModelo.value) cargar(urls.anios + '?idModelo=' + encodeURIComponent(selModelo.value), selAnio, 'Año');
+    });
+
+    selAnio.addEventListener('change', function () {
+        llenar(selVersion, [], 'Versión');
+        btnAgregar.disabled = true;
+        if (selModelo.value && selAnio.value) {
+            cargar(urls.versiones + '?idModelo=' + encodeURIComponent(selModelo.value) +
+                   '&anio=' + encodeURIComponent(selAnio.value), selVersion, 'Versión');
+        }
+    });
+
+    selVersion.addEventListener('change', function () {
+        btnAgregar.disabled = !selVersion.value;
+    });
+
+    btnAgregar.addEventListener('click', function () {
+        var id = selVersion.value;
+        if (!id) return;
+        var repetido = Array.prototype.some.call(
+            lista.querySelectorAll('input[name="IdsVehiculos"]'),
+            function (i) { return i.value === id; });
+        if (repetido) {
+            if (window.rxToast) window.rxToast('Ese vehículo ya está en la lista.');
+            return;
+        }
+        var texto = textoElegido(selMarca) + ' ' + textoElegido(selModelo) + ' ' +
+                    selAnio.value + ' · ' + textoElegido(selVersion);
+
+        var li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center gap-2';
+        var span = document.createElement('span');
+        span.textContent = texto;
+        var oculto = document.createElement('input');
+        oculto.type = 'hidden';
+        oculto.name = 'IdsVehiculos';
+        oculto.setAttribute('value', id);
+        var quitar = document.createElement('button');
+        quitar.type = 'button';
+        quitar.className = 'btn btn-sm btn-outline-secondary';
+        quitar.setAttribute('data-quitar', '');
+        quitar.setAttribute('aria-label', 'Quitar vehículo');
+        quitar.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
+        li.appendChild(span);
+        li.appendChild(oculto);
+        li.appendChild(quitar);
+        lista.appendChild(li);
+        actualizarVacio();
+    });
+
+    lista.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-quitar]');
+        if (!b) return;
+        b.closest('li').remove();
+        actualizarVacio();
+    });
+})();
+</script>
+}

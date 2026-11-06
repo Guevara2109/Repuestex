@@ -14,7 +14,7 @@ public class UsuarioRepository
     {
         const string sql = @"
             SELECT u.id_usuario, u.id_rol, u.nombre, u.correo, u.contrasena_hash,
-                   u.activo, u.fecha_registro, r.nombre AS rol_nombre
+            u.activo, u.fecha_registro, u.id_proveedor, r.nombre AS rol_nombre
             FROM usuario u
             JOIN rol r ON r.id_rol = u.id_rol
             WHERE u.correo = @correo";

@@ -13,6 +13,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<Db>();
 builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<CatalogoRepository>();
+builder.Services.AddScoped<VendedorRepository>();
 
 // Autenticacion por cookie (RF-02) con roles (RN-09)
 builder.Services
@@ -37,6 +38,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en-US"),
+    SupportedCultures = new List<System.Globalization.CultureInfo> { new("en-US") },
+    SupportedUICultures = new List<System.Globalization.CultureInfo> { new("en-US") }
+});
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -52,6 +60,8 @@ if (app.Environment.IsDevelopment())
     var repo = scope.ServiceProvider.GetRequiredService<UsuarioRepository>();
     await repo.ReemplazarHashMarcadorAsync("admin@repuestex.com", BCrypt.Net.BCrypt.HashPassword("Admin123!"));
     await repo.ReemplazarHashMarcadorAsync("cliente@ejemplo.com", BCrypt.Net.BCrypt.HashPassword("Cliente123!"));
+    await repo.ReemplazarHashMarcadorAsync("vendedor@ejemplo.com", BCrypt.Net.BCrypt.HashPassword("Vendedor123!"));
+
 }
 
 app.Run();

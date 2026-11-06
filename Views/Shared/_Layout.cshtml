@@ -25,6 +25,12 @@
                     {
                         <a class="btn-ghost" asp-controller="Admin" asp-action="Index"><i class="bi bi-speedometer2" aria-hidden="true"></i> Administración</a>
                     }
+
+                    if (User.IsInRole("Vendedor"))
+                    {
+                        <a class="btn-ghost" asp-controller="Vendedor" asp-action="Index"><i class="bi bi-shop" aria-hidden="true"></i> Mis productos</a>
+                    }
+
                     <form asp-controller="Cuenta" asp-action="Logout" method="post" class="m-0">
                         <button class="btn btn-rx btn-sm"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Cerrar sesión</button>
                     </form>
