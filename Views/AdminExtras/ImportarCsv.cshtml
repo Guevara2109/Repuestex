@@ -1,0 +1,220 @@
+@{
+    ViewData["Title"] = "Importar proveedores por CSV";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin-extras.css"
+      asp-append-version="true" />
+
+<div class="container py-4">
+
+    <!-- ENCABEZADO -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                Importar proveedores por CSV
+            </h2>
+            <p class="text-muted mb-0">
+                Registrá múltiples proveedores de forma rápida
+                mediante un archivo CSV.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Volver al panel
+        </a>
+    </div>
+
+    <!-- MENSAJES -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success shadow-sm border-0">
+            <strong>Importación completada</strong>
+            <div>@TempData["Mensaje"]</div>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger shadow-sm border-0">
+            <strong>No se pudo completar la importación</strong>
+            <div>@TempData["Error"]</div>
+        </div>
+    }
+
+    <div class="row g-4">
+
+        <!-- FORMULARIO PRINCIPAL -->
+        <div class="col-12 col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="mb-4">
+                        <span class="badge bg-primary mb-3">
+                            Importación de datos
+                        </span>
+
+                        <h4 class="fw-bold mb-2">
+                            Seleccionar archivo CSV
+                        </h4>
+
+                        <p class="text-muted">
+                            Seleccioná un archivo que contenga
+                            los proveedores que deseás registrar
+                            en el sistema.
+                        </p>
+                    </div>
+
+                    <form asp-controller="AdminExtras"
+                          asp-action="ImportarCsv"
+                          method="post"
+                          enctype="multipart/form-data">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="p-4 rounded-3 border bg-light mb-4 text-center">
+
+                            <div class="mb-3">
+                                <span class="fs-1">
+                                    &#128196;
+                                </span>
+                            </div>
+
+                            <h5 class="fw-bold">
+                                Cargar archivo de proveedores
+                            </h5>
+
+                            <p class="text-muted small">
+                                Formato permitido: .csv
+                            </p>
+
+                            <input type="file"
+                                   id="archivoCsv"
+                                   name="archivo"
+                                   accept=".csv,text/csv"
+                                   class="form-control"
+                                   aria-describedby="ayudaCsv"
+                                   required />
+
+                            <div id="ayudaCsv"
+                                 class="form-text mt-3">
+                                Seleccioná un archivo CSV
+                                guardado en tu computadora.
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info border-0">
+                            <strong>Antes de importar:</strong>
+                            <p class="mb-0 mt-2">
+                                Verificá que el archivo tenga
+                                las columnas correctas y que
+                                los datos estén completos.
+                            </p>
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100 py-2 fw-semibold">
+                            Importar proveedores
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN -->
+        <div class="col-12 col-lg-5">
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">
+                        Requisitos del archivo
+                    </h5>
+
+                    <div class="mb-3">
+                        <strong>Formato</strong>
+                        <p class="text-muted mb-0">
+                            Archivo CSV con codificación UTF-8.
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Encabezado obligatorio</strong>
+                        <div class="bg-light rounded p-3 mt-2">
+                            <code>nombre,telefono,direccion</code>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Cantidad máxima</strong>
+                        <p class="text-muted mb-0">
+                            Hasta 500 filas por archivo.
+                        </p>
+                    </div>
+
+                    <div>
+                        <strong>Importante</strong>
+                        <p class="text-muted mb-0">
+                            Esta versión admite archivos CSV
+                            sencillos, sin comas dentro
+                            de los campos.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- EJEMPLO -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">
+                        Ejemplo de archivo CSV
+                    </h5>
+
+                    <p class="text-muted small">
+                        Tu archivo debe contener información
+                        organizada de esta manera:
+                    </p>
+
+                    <div class="bg-light rounded p-3 overflow-auto">
+                        <pre class="mb-0 small"><code>nombre,telefono,direccion
+Repuestos San Jose,72345678,San Salvador
+Autopartes Central,78901234,Chalatenango
+Distribuidora Lopez,71234567,Santa Ana</code></pre>
+                    </div>
+
+                    <p class="text-muted small mt-3 mb-0">
+                        Cada fila representa un proveedor
+                        que será registrado en el sistema.
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- INFORMACIÓN INFERIOR -->
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-2">
+                ¿Qué sucede después de importar?
+            </h5>
+
+            <p class="text-muted mb-0">
+                Cuando la importación se complete correctamente,
+                los proveedores registrados estarán disponibles
+                en el módulo Administrar proveedores,
+                donde podrás consultar y modificar sus datos,
+                además de activarlos o desactivarlos.
+            </p>
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,274 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Reportes y bitácora";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin-extras.css"
+      asp-append-version="true" />
+
+<div class="container py-4">
+
+    <!-- ENCABEZADO -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                Reportes y bitácora
+            </h2>
+
+            <p class="text-muted mb-0">
+                Consultá las estadísticas generales
+                y supervisá las actividades registradas
+                en el sistema.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Volver al panel
+        </a>
+
+    </div>
+
+    <!-- MENSAJES -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger border-0 shadow-sm">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- RESUMEN GENERAL -->
+    <div class="mb-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="fw-bold mb-1">
+                    Resumen general
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Información estadística del sistema.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+
+            @if (ViewBag.Totales != null)
+            {
+                foreach (dynamic x in ViewBag.Totales)
+                {
+                    <div class="col-12 col-sm-6 col-lg-4">
+
+                        <div class="card border-0 shadow-sm h-100">
+
+                            <div class="card-body p-4">
+
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+
+                                    <div>
+                                        <p class="text-muted fw-semibold mb-2">
+                                            @x.Nombre
+                                        </p>
+
+                                        <h2 class="fw-bold mb-0">
+                                            @x.Total
+                                        </h2>
+                                    </div>
+
+                                    <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                                        <span class="fs-4 text-primary">
+                                            &#128202;
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="border-top pt-3">
+
+                                    <span class="text-muted small">
+                                        Total registrado en el sistema
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+            }
+
+        </div>
+
+    </div>
+
+    <!-- BITÁCORA -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+                <div>
+                    <h4 class="fw-bold mb-1">
+                        Historial de actividades
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        Últimas 100 acciones registradas
+                        en la bitácora del sistema.
+                    </p>
+                </div>
+
+                <span class="badge bg-primary px-3 py-2">
+                    @(Model?.Count ?? 0) registros
+                </span>
+
+            </div>
+
+            <!-- TABLA DE ACTIVIDADES -->
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th class="py-3">
+                                Fecha
+                            </th>
+
+                            <th class="py-3">
+                                Usuario
+                            </th>
+
+                            <th class="py-3">
+                                Acción
+                            </th>
+
+                            <th class="py-3">
+                                Tabla
+                            </th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            foreach (dynamic x in Model)
+                            {
+                                <tr>
+
+                                    <td class="py-3">
+                                        <span class="text-muted">
+                                            @x.Fecha
+                                        </span>
+                                    </td>
+
+                                    <td class="py-3">
+
+                                        <div class="d-flex align-items-center gap-2">
+
+                                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                                                 style="width:36px;height:36px;flex-shrink:0;">
+
+                                                <span class="text-primary fw-bold">
+                                                    U
+                                                </span>
+
+                                            </div>
+
+                                            <span class="fw-semibold">
+                                                @x.Usuario
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td class="py-3">
+
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2">
+                                            @x.Accion
+                                        </span>
+
+                                    </td>
+
+                                    <td class="py-3">
+
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border px-3 py-2">
+                                            @x.Tabla
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4"
+                                    class="text-center py-5">
+
+                                    <h5 class="fw-bold">
+                                        No hay actividades registradas
+                                    </h5>
+
+                                    <p class="text-muted mb-0">
+                                        Las acciones realizadas
+                                        en el sistema aparecerán aquí.
+                                    </p>
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- INFORMACIÓN -->
+    <div class="card border-0 shadow-sm mt-4">
+
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-2">
+                Información de la bitácora
+            </h5>
+
+            <p class="text-muted mb-0">
+                Este módulo permite consultar las actividades
+                registradas en el sistema, identificando
+                la fecha, el usuario responsable,
+                la acción realizada y la tabla relacionada.
+                La información facilita el seguimiento
+                y la supervisión administrativa.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>

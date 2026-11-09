@@ -1,0 +1,233 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Administrar vehículos";
+}
+
+<link rel="stylesheet" href="~/css/admin-extras.css" asp-append-version="true" />
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Administrar vehículos</h2>
+            <p class="text-muted mb-0">
+                Registrá, editá y administrá los vehículos del sistema.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Volver al panel
+        </a>
+    </div>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h4 class="fw-bold mb-1">Nuevo vehículo</h4>
+            <p class="text-muted mb-4">
+                Completá los datos para registrar un vehículo.
+            </p>
+
+            <form asp-controller="AdminExtras"
+                  asp-action="GuardarVehiculo"
+                  method="post"
+                  class="row g-3">
+
+                @Html.AntiForgeryToken()
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">Marca y modelo</label>
+                    <select class="form-select" name="modeloId" required>
+                        <option value="">Elegí un modelo</option>
+                        @foreach (dynamic m in ViewBag.Modelos)
+                        {
+                            <option value="@m.Id">@m.Nombre</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">Año</label>
+                    <input class="form-control"
+                           name="anio"
+                           type="number"
+                           min="2008"
+                           max="2026"
+                           placeholder="Ej. 2024"
+                           required />
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">Motor</label>
+                    <input class="form-control"
+                           name="motor"
+                           maxlength="40"
+                           placeholder="Ej. 1.8 L"
+                           required />
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">Transmisión</label>
+                    <input class="form-control"
+                           name="transmision"
+                           maxlength="20"
+                           placeholder="Manual o automática" />
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">Combustible</label>
+                    <input class="form-control"
+                           name="combustible"
+                           maxlength="20"
+                           placeholder="Ej. Gasolina" />
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary px-4">
+                        Crear vehículo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h4 class="fw-bold mb-3">Vehículos registrados</h4>
+
+    <div class="row g-3">
+        @foreach (dynamic x in Model)
+        {
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">@x.Modelo</h5>
+                                <p class="text-muted small mb-0">
+                                    Vehículo #@x.Id
+                                </p>
+                            </div>
+                            <span class="badge bg-secondary">
+                                @x.Anio
+                            </span>
+                        </div>
+
+                        <form asp-controller="AdminExtras"
+                              asp-action="GuardarVehiculo"
+                              method="post"
+                              class="row g-3">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="id" value="@x.Id" />
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Marca y modelo</label>
+                                <select class="form-select" name="modeloId" required>
+                                    @foreach (dynamic m in ViewBag.Modelos)
+                                    {
+                                        if (m.Id == x.ModeloId)
+                                        {
+                                            <option value="@m.Id" selected>@m.Nombre</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@m.Id">@m.Nombre</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label fw-semibold">Año</label>
+                                <input class="form-control"
+                                       name="anio"
+                                       type="number"
+                                       min="2008"
+                                       max="2026"
+                                       value="@x.Anio"
+                                       required />
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label fw-semibold">Motor</label>
+                                <input class="form-control"
+                                       name="motor"
+                                       maxlength="40"
+                                       value="@x.Motor"
+                                       required />
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label fw-semibold">Transmisión</label>
+                                <input class="form-control"
+                                       name="transmision"
+                                       maxlength="20"
+                                       value="@x.Transmision" />
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label fw-semibold">Combustible</label>
+                                <input class="form-control"
+                                       name="combustible"
+                                       maxlength="20"
+                                       value="@x.Combustible" />
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit"
+                                        class="btn btn-primary w-100">
+                                    Guardar cambios
+                                </button>
+                            </div>
+                        </form>
+
+                        <form asp-controller="AdminExtras"
+                              asp-action="EliminarVehiculo"
+                              method="post"
+                              class="mt-2"
+                              onsubmit="return confirm('¿Eliminar vehículo? Si tiene relaciones, SQL Server impedirá eliminarlo.');">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="id" value="@x.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-danger w-100">
+                                Eliminar vehículo
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <h5>No hay vehículos registrados</h5>
+            <p class="text-muted">
+                Registrá el primer vehículo utilizando el formulario superior.
+            </p>
+        </div>
+    }
+
+</div>

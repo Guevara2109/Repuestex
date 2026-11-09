@@ -1,0 +1,151 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Administrar usuarios";
+}
+
+<link rel="stylesheet" href="~/css/admin-extras.css" asp-append-version="true" />
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Administrar usuarios</h2>
+            <p class="text-muted mb-0">
+                Gestioná los roles y el estado de las cuentas.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Volver al panel
+        </a>
+    </div>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="alert alert-info mb-4">
+        Por seguridad, las cuentas se crean mediante el
+        registro existente. Aquí podés cambiar sus roles
+        y activar o desactivar usuarios.
+    </div>
+
+    <div class="row g-3">
+
+        @foreach (dynamic x in Model)
+        {
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body p-4">
+
+                        <h5 class="fw-bold mb-1">
+                            @x.Nombre
+                        </h5>
+
+                        <p class="text-muted small mb-3">
+                            @x.Correo
+                        </p>
+
+                        <form asp-controller="AdminExtras"
+                              asp-action="GuardarUsuario"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@x.Id" />
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Rol del usuario
+                                </label>
+
+                                <select name="rolId"
+                                        class="form-select">
+
+                                    @foreach (dynamic r in ViewBag.Roles)
+                                    {
+                                        if (r.Id == x.RolId)
+                                        {
+                                            <option value="@r.Id" selected>
+                                                @r.Nombre
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@r.Id">
+                                                @r.Nombre
+                                            </option>
+                                        }
+                                    }
+
+                                </select>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+
+                                @if (x.Activo)
+                                {
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="activo"
+                                           value="true"
+                                           checked />
+                                }
+                                else
+                                {
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="activo"
+                                           value="true" />
+                                }
+
+                                <label class="form-check-label">
+                                    Usuario activo
+                                </label>
+
+                            </div>
+
+                            <input type="hidden"
+                                   name="activo"
+                                   value="false" />
+
+                            <button type="submit"
+                                    class="btn btn-primary w-100">
+                                Guardar cambios
+                            </button>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <h5>No hay usuarios registrados</h5>
+            <p class="text-muted">
+                Todavía no hay cuentas para administrar.
+            </p>
+        </div>
+    }
+
+</div>

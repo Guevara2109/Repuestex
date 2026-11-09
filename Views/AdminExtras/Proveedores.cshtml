@@ -1,0 +1,232 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Administrar proveedores";
+}
+
+<link rel="stylesheet" href="~/css/admin-extras.css" asp-append-version="true" />
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Administrar proveedores</h2>
+            <p class="text-muted mb-0">
+                Registrá, editá y administrá los proveedores del sistema.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Volver al panel
+        </a>
+    </div>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-1">Nuevo proveedor</h4>
+            <p class="text-muted mb-4">
+                Completá los datos para registrar un proveedor.
+            </p>
+
+            <form asp-controller="AdminExtras"
+                  asp-action="GuardarProveedor"
+                  method="post"
+                  class="row g-3">
+
+                @Html.AntiForgeryToken()
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">
+                        Nombre del proveedor
+                    </label>
+                    <input class="form-control"
+                           name="nombre"
+                           maxlength="100"
+                           placeholder="Nombre del proveedor"
+                           required />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">
+                        Teléfono
+                    </label>
+                    <input class="form-control"
+                           name="telefono"
+                           maxlength="20"
+                           placeholder="Número de teléfono" />
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold">
+                        Dirección
+                    </label>
+                    <input class="form-control"
+                           name="direccion"
+                           maxlength="200"
+                           placeholder="Dirección del proveedor" />
+                </div>
+
+                <div class="col-12">
+                    <button type="submit"
+                            class="btn btn-primary px-4">
+                        Crear proveedor
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <h4 class="fw-bold mb-3">Proveedores registrados</h4>
+
+    <div class="row g-3">
+
+        @foreach (dynamic x in Model)
+        {
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    @x.Nombre
+                                </h5>
+                                <p class="text-muted small mb-0">
+                                    Proveedor #@x.Id
+                                </p>
+                            </div>
+
+                            @if (x.Activo)
+                            {
+                                <span class="badge bg-success">
+                                    Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactivo
+                                </span>
+                            }
+                        </div>
+
+                        <form asp-controller="AdminExtras"
+                              asp-action="GuardarProveedor"
+                              method="post"
+                              class="row g-3">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@x.Id" />
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    Nombre del proveedor
+                                </label>
+                                <input class="form-control"
+                                       name="nombre"
+                                       maxlength="100"
+                                       value="@x.Nombre"
+                                       required />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    Teléfono
+                                </label>
+                                <input class="form-control"
+                                       name="telefono"
+                                       maxlength="20"
+                                       value="@x.Telefono" />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    Dirección
+                                </label>
+                                <input class="form-control"
+                                       name="direccion"
+                                       maxlength="200"
+                                       value="@x.Direccion" />
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit"
+                                        class="btn btn-primary w-100">
+                                    Guardar cambios
+                                </button>
+                            </div>
+
+                        </form>
+
+                        <form asp-controller="AdminExtras"
+                              asp-action="EstadoProveedor"
+                              method="post"
+                              class="mt-2">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@x.Id" />
+
+                            <input type="hidden"
+                                   name="activo"
+                                   value="@(x.Activo ? "false" : "true")" />
+
+                            @if (x.Activo)
+                            {
+                                <button type="submit"
+                                        class="btn btn-outline-danger w-100">
+                                    Desactivar proveedor
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit"
+                                        class="btn btn-outline-success w-100">
+                                    Activar proveedor
+                                </button>
+                            }
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <h5>No hay proveedores registrados</h5>
+            <p class="text-muted">
+                Registrá el primer proveedor utilizando
+                el formulario superior.
+            </p>
+        </div>
+    }
+
+</div>
