@@ -1,0 +1,21 @@
+@model Repuestex.ViewModels.AdminRepuestoFormViewModel
+@{
+    ViewData["Title"] = "Editar repuesto";
+}
+<div class="container py-4">
+    <a asp-action="Repuestos" class="rx-back">← Volver a repuestos</a>
+    <h1 class="h3 fw-bold my-3">Editar repuesto</h1>
+    <form asp-action="Editar" asp-route-id="@Model.IdRepuesto" method="post" class="rx-panel">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div class="row g-3">
+            <div class="col-md-6"><label asp-for="NumeroParte" class="form-label"></label><input asp-for="NumeroParte" class="form-control" /></div>
+            <div class="col-md-6"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control" /></div>
+            <div class="col-md-6"><label asp-for="IdCategoria" class="form-label"></label><select asp-for="IdCategoria" class="form-select" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Categorias, "IdCategoria", "Nombre"))"><option value="">Selecciona</option></select></div>
+            <div class="col-md-6"><label asp-for="Tipo" class="form-label"></label><select asp-for="Tipo" class="form-select"><option value="Original">Original</option><option value="Alterno">Alterno</option></select></div>
+            <div class="col-12"><label asp-for="Descripcion" class="form-label"></label><textarea asp-for="Descripcion" class="form-control" rows="4"></textarea></div>
+            <div class="col-12"><label asp-for="ImagenUrl" class="form-label"></label><input asp-for="ImagenUrl" class="form-control" placeholder="https://..." /></div>
+            <div class="col-12 d-flex gap-2"><button type="submit" class="btn btn-primary">Guardar cambios</button><a asp-action="Repuestos" class="btn btn-outline-secondary">Cancelar</a></div>
+        </div>
+    </form>
+    <p class="small text-secondary mt-3">Las compatibilidades, equivalencias y ofertas existentes no se modifican desde este formulario.</p>
+</div>

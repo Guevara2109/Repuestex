@@ -3,13 +3,31 @@
 }
 <div class="container py-4">
     <h1 class="h4 fw-bold mb-1">Panel administrativo</h1>
-    <p class="text-secondary mb-4">Aquí se gestionará el catálogo del sistema. Estos módulos se activarán en los siguientes avances.</p>
+    <p class="text-secondary mb-4">Gestiona el catálogo del sistema.</p>
     <div class="row g-3">
-        <div class="col-6 col-lg-4"><div class="rx-module"><i class="bi bi-tools" aria-hidden="true"></i><h2 class="h6 fw-bold mt-2 mb-1">Repuestos</h2><p class="small text-secondary mb-0">Crear, editar y desactivar (CU-09).</p></div></div>
-        <div class="col-6 col-lg-4"><div class="rx-module"><i class="bi bi-car-front" aria-hidden="true"></i><h2 class="h6 fw-bold mt-2 mb-1">Vehículos</h2><p class="small text-secondary mb-0">Marcas, modelos y versiones (CU-11).</p></div></div>
-        <div class="col-6 col-lg-4"><div class="rx-module"><i class="bi bi-shop" aria-hidden="true"></i><h2 class="h6 fw-bold mt-2 mb-1">Proveedores</h2><p class="small text-secondary mb-0">Precios y existencias (CU-10).</p></div></div>
-        <div class="col-6 col-lg-4"><div class="rx-module"><i class="bi bi-people" aria-hidden="true"></i><h2 class="h6 fw-bold mt-2 mb-1">Usuarios</h2><p class="small text-secondary mb-0">Cuentas y roles (CU-12).</p></div></div>
-        <div class="col-6 col-lg-4"><div class="rx-module"><i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i><h2 class="h6 fw-bold mt-2 mb-1">Importar CSV</h2><p class="small text-secondary mb-0">Carga masiva de datos (CU-13).</p></div></div>
-        <div class="col-6 col-lg-4"><div class="rx-module"><i class="bi bi-bar-chart" aria-hidden="true"></i><h2 class="h6 fw-bold mt-2 mb-1">Reportes y bitácora</h2><p class="small text-secondary mb-0">Consultas frecuentes y auditoría (CU-14).</p></div></div>
+        <div class="col-6 col-lg-4">
+            <a asp-controller="Admin" asp-action="Repuestos" class="rx-module d-block text-decoration-none text-reset h-100">
+                <i class="bi bi-tools" aria-hidden="true"></i>
+                <h2 class="h6 fw-bold mt-2 mb-1">Repuestos</h2>
+                <p class="small text-secondary mb-0">Listar, editar, activar y desactivar.</p>
+            </a>
+        </div>
+        @foreach (var modulo in new[] {
+            (Icono: "bi-car-front", Nombre: "Vehículos", Texto: "Marcas, modelos y versiones"),
+            (Icono: "bi-shop", Nombre: "Proveedores", Texto: "Precios y existencias"),
+            (Icono: "bi-people", Nombre: "Usuarios", Texto: "Cuentas y roles"),
+            (Icono: "bi-file-earmark-spreadsheet", Nombre: "Importar CSV", Texto: "Carga masiva de datos"),
+            (Icono: "bi-bar-chart", Nombre: "Reportes y bitácora", Texto: "Consultas y auditoría")
+        })
+        {
+            <div class="col-6 col-lg-4">
+                <div class="rx-module h-100">
+                    <i class="bi @modulo.Icono" aria-hidden="true"></i>
+                    <h2 class="h6 fw-bold mt-2 mb-1">@modulo.Nombre</h2>
+                    <p class="small text-secondary mb-0">@modulo.Texto</p>
+                    <span class="badge bg-secondary mt-2">Pendiente</span>
+                </div>
+            </div>
+        }
     </div>
 </div>

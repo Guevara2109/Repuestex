@@ -1,0 +1,39 @@
+@model List<Repuestex.Models.AdminRepuesto>
+@{
+    ViewData["Title"] = "Administrar repuestos";
+}
+<div class="container py-4">
+    <a asp-action="Index" class="rx-back">← Panel administrativo</a>
+    <h1 class="h3 fw-bold mt-3">Administrar repuestos</h1>
+    <p class="text-secondary">Consulta, edita o cambia el estado de los repuestos.</p>
+    @if (TempData["Mensaje"] is string mensaje) { <div class="alert alert-success">@mensaje</div> }
+    @if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
+    <form method="get" asp-action="Repuestos" class="d-flex gap-2 mb-3">
+        <input class="form-control" type="search" name="buscar" value="@ViewBag.Buscar" placeholder="Nombre o número de parte" />
+        <button class="btn btn-primary">Buscar</button>
+    </form>
+    <div class="rx-panel">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Número de parte</th><th>Nombre</th><th>Categoría</th><th>Tipo</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.NumeroParte</td><td>@r.Nombre</td><td>@r.Categoria</td><td>@r.Tipo</td>
+                        <td><span class="badge @(r.Activo ? "bg-success" : "bg-secondary")">@(r.Activo ? "Activo" : "Inactivo")</span></td>
+                        <td class="text-nowrap">
+                            <a asp-action="Editar" asp-route-id="@r.IdRepuesto" class="btn btn-sm btn-outline-primary">Editar</a>
+                            <form asp-action="CambiarEstado" asp-route-id="@r.IdRepuesto" method="post" class="d-inline" onsubmit="return confirm('¿Confirmar el cambio de estado?');">
+                                <input type="hidden" name="activo" value="@(r.Activo ? "false" : "true")" />
+                                <button class="btn btn-sm @(r.Activo ? "btn-outline-danger" : "btn-outline-success")">@(r.Activo ? "Desactivar" : "Reactivar")</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            @if (Model.Count == 0) { <p class="text-secondary">No se encontraron repuestos.</p> }
+        </div>
+    </div>
+</div>
