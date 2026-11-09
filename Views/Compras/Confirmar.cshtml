@@ -1,0 +1,184 @@
+
+@model CompraPreviaViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Confirmar compra";
+}
+
+<div class="container py-4" style="max-width:700px">
+
+    <h1 class="h3 mb-3">Confirmar compra</h1>
+
+    <div class="card p-4 shadow-sm">
+
+        <h2 class="h5 fw-bold">
+            @Model.NombreRepuesto
+        </h2>
+
+        <p>
+            Proveedor:
+            <strong>@Model.Proveedor</strong>
+        </p>
+
+        <p>
+            Precio unitario:
+            <strong>
+                $@Model.PrecioUnitario.ToString(
+                    "N2", CultureInfo.InvariantCulture)
+            </strong>
+        </p>
+
+        <p>
+            Disponibles:
+            <strong>@Model.Existencia</strong>
+        </p>
+
+        @if (TempData["ErrorCompra"] is string errorCompra)
+        {
+            <div class="alert alert-danger" role="alert">
+                @errorCompra
+            </div>
+        }
+
+        <form asp-controller="Compras"
+              asp-action="Realizar"
+              method="post"
+              id="formCompra">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="idRepuesto"
+                   value="@Model.IdRepuesto" />
+
+            <input type="hidden"
+                   name="idProveedor"
+                   value="@Model.IdProveedor" />
+
+            <label for="cantidad"
+                   class="form-label">
+                Cantidad que deseas comprar
+            </label>
+
+            <input id="cantidad"
+                   name="cantidad"
+                   class="form-control"
+                   type="number"
+                   min="1"
+                   max="@Model.Existencia"
+                   step="1"
+                   value="1"
+                   required />
+
+            <p class="mt-3 fs-5">
+                Total:
+                <strong id="total"></strong>
+            </p>
+
+            <div id="mensajeError"
+                 class="alert alert-danger d-none"
+                 role="alert">
+                Seleccioná una cantidad válida.
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <button type="submit"
+                        id="btnConfirmar"
+                        class="btn btn-success"
+                        disabled>
+                    <i class="bi bi-check-circle"></i>
+                    Confirmar compra
+                </button>
+
+                <a class="btn btn-outline-secondary"
+                   asp-controller="Repuestos"
+                   asp-action="Detalle"
+                   asp-route-id="@Model.IdRepuesto">
+                    Cancelar y volver
+                </a>
+
+            </div>
+        </form>
+
+        <p class="text-secondary small mt-3 mb-0">
+            La compra se registrará en el sistema
+            únicamente si SQL Server confirma
+            que la operación se completó.
+        </p>
+
+    </div>
+</div>
+
+<script>
+(() => {
+    const input = document.getElementById('cantidad');
+    const total = document.getElementById('total');
+    const boton = document.getElementById('btnConfirmar');
+    const error = document.getElementById('mensajeError');
+    const formulario = document.getElementById('formCompra');
+
+    const precio = @Model.PrecioUnitario.ToString(
+        CultureInfo.InvariantCulture);
+
+    const max = @Model.Existencia;
+
+    const formatoMoneda = new Intl.NumberFormat(
+        'en-US',
+        {
+            style: 'currency',
+            currency: 'USD'
+        }
+    );
+
+    function obtenerCantidad() {
+        const cantidad = Number(input.value);
+
+        if (
+            input.value.trim() === '' ||
+            !Number.isInteger(cantidad) ||
+            cantidad < 1 ||
+            cantidad > max
+        ) {
+            return null;
+        }
+
+        return cantidad;
+    }
+
+    function actualizarTotal() {
+        const cantidad = obtenerCantidad();
+
+        if (cantidad === null) {
+            total.textContent = 'Cantidad no válida';
+            boton.disabled = true;
+            return;
+        }
+
+        total.textContent = formatoMoneda.format(
+            cantidad * precio
+        );
+
+        boton.disabled = false;
+        error.classList.add('d-none');
+    }
+
+    formulario.addEventListener('submit', (evento) => {
+        const cantidad = obtenerCantidad();
+
+        if (cantidad === null) {
+            evento.preventDefault();
+            error.classList.remove('d-none');
+            return;
+        }
+
+        boton.disabled = true;
+        boton.textContent = 'Procesando compra...';
+    });
+
+    input.addEventListener('input', actualizarTotal);
+
+    actualizarTotal();
+})();
+</script>

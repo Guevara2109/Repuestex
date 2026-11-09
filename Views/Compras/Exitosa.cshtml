@@ -1,0 +1,56 @@
+﻿@model Repuestex.Controllers.PedidoConfirmado
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Compra exitosa";
+}
+
+<div class="container py-5" style="max-width:650px">
+
+    <div class="card shadow-sm p-4 text-center">
+
+        <div class="text-success mb-3">
+            <i class="bi bi-check-circle-fill"
+               style="font-size:4rem"></i>
+        </div>
+
+        <h1 class="h3 text-success fw-bold">
+            ¡Compra exitosa!
+        </h1>
+
+        <p class="text-secondary mt-3">
+            Tu pedido se registró correctamente
+            en el sistema Repuestex.
+        </p>
+
+        <div class="bg-light rounded p-3 my-3">
+
+            <p class="mb-2">
+                Número de pedido:
+                <strong>#@Model.IdPedido</strong>
+            </p>
+
+            <p class="fs-4 mb-0">
+                Total:
+                <strong class="text-success">
+                    $@(Model.Total.ToString("N2", CultureInfo.InvariantCulture))
+                </strong>
+            </p>
+
+        </div>
+
+        <div class="alert alert-info small">
+            Este registro corresponde a una compra
+            dentro del sistema. No se ha procesado
+            ningún pago electrónico.
+        </div>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-success mt-3">
+            Volver al catálogo
+        </a>
+
+    </div>
+
+</div>

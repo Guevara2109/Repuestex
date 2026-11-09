@@ -1,14 +1,22 @@
 @model DetalleViewModel
+
 @{
     var r = Model.Repuesto;
     ViewData["Title"] = r.Nombre;
-    var mejor = Model.Ofertas.Where(o => o.Existencia > 0).OrderBy(o => o.PrecioRef).FirstOrDefault();
+
+    var mejor = Model.Ofertas
+        .Where(o => o.Existencia > 0)
+        .OrderBy(o => o.PrecioRef)
+        .FirstOrDefault();
 }
 
 <div class="container py-4">
     <nav class="mb-3">
-        <a class="rx-back" href="@Url.Action("Index", "Home")" onclick="if (document.referrer) { history.back(); return false; }">
-            <i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a resultados
+        <a class="rx-back"
+           href="@Url.Action("Index", "Home")"
+           onclick="if (document.referrer) { history.back(); return false; }">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Volver a resultados
         </a>
     </nav>
 
@@ -22,86 +30,193 @@
                     }
                     else
                     {
-                        <i class="bi @IconosCategoria.Para(r.Categoria)" aria-hidden="true"></i>
+                        <i class="bi @IconosCategoria.Para(r.Categoria)"
+                           aria-hidden="true"></i>
                     }
                 </div>
+
                 <div class="flex-grow-1">
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-2 small">
-                        <span class="rx-tag @(r.Tipo == "Original" ? "rx-tag-ok" : "rx-tag-alt")">@r.Tipo</span>
-                        <span class="rx-cat-text text-secondary"><i class="bi @IconosCategoria.Para(r.Categoria)" aria-hidden="true"></i> @r.Categoria</span>
+                        <span class="rx-tag @(r.Tipo == "Original" ? "rx-tag-ok" : "rx-tag-alt")">
+                            @r.Tipo
+                        </span>
+
+                        <span class="rx-cat-text text-secondary">
+                            <i class="bi @IconosCategoria.Para(r.Categoria)"
+                               aria-hidden="true"></i>
+                            @r.Categoria
+                        </span>
                     </div>
+
                     <h1 class="h3 fw-bold mb-2">@r.Nombre</h1>
+
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <span class="text-secondary small">N.º de parte</span>
                         <span class="rx-code-lg">@r.NumeroParte</span>
-                        <button type="button" class="rx-copy" data-copy="@r.NumeroParte" aria-label="Copiar número de parte">
-                            <i class="bi bi-clipboard" aria-hidden="true"></i> Copiar
+
+                        <button type="button"
+                                class="rx-copy"
+                                data-copy="@r.NumeroParte"
+                                aria-label="Copiar número de parte">
+                            <i class="bi bi-clipboard" aria-hidden="true"></i>
+                            Copiar
                         </button>
                     </div>
+
                     @if (!string.IsNullOrWhiteSpace(r.Descripcion))
                     {
-                        <p class="text-secondary mt-3 mb-0">@r.Descripcion</p>
+                        <p class="text-secondary mt-3 mb-0">
+                            @r.Descripcion
+                        </p>
                     }
                 </div>
             </div>
         </div>
+
         <div class="col-lg-4">
             <div class="rx-panel rx-best">
                 @if (mejor is not null)
                 {
-                    <div class="rx-best-label">Mejor precio disponible</div>
-                    <div class="rx-best-price">$@mejor.PrecioRef.ToString("N2", CultureInfo.InvariantCulture)</div>
-                    <div>en <strong>@mejor.Proveedor</strong></div>
-                    <div class="small" style="color:#cfe0f1">@mejor.Existencia unidades en existencia</div>
+                    <div class="rx-best-label">
+                        Mejor precio disponible
+                    </div>
+
+                    <div class="rx-best-price">
+                        $@mejor.PrecioRef.ToString("N2", CultureInfo.InvariantCulture)
+                    </div>
+
+                    <div>
+                        en <strong>@mejor.Proveedor</strong>
+                    </div>
+
+                    <div class="small" style="color:#cfe0f1">
+                        @mejor.Existencia unidades en existencia
+                    </div>
+
+                    @if (r.IdRepuesto > 0 && mejor.IdProveedor > 0)
+                    {
+                        <a class="btn btn-success w-100 mt-3"
+                           asp-controller="Compras"
+                           asp-action="Confirmar"
+                           asp-route-idRepuesto="@r.IdRepuesto"
+                           asp-route-idProveedor="@mejor.IdProveedor">
+                            <i class="bi bi-cart-check"></i>
+                            Comprar 
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                class="btn btn-secondary w-100 mt-3"
+                                disabled>
+                            Compra no disponible
+                        </button>
+                    }
                 }
                 else
                 {
-                    <div class="rx-best-label">Disponibilidad</div>
-                    <div class="h5 fw-bold mt-1">Sin existencias por ahora</div>
-                    <div class="small" style="color:#cfe0f1">Consulta otros repuestos o vuelve más tarde.</div>
+                    <div class="rx-best-label">
+                        Disponibilidad
+                    </div>
+
+                    <div class="h5 fw-bold mt-1">
+                        Sin existencias por ahora
+                    </div>
+
+                    <div class="small" style="color:#cfe0f1">
+                        Consulta otros repuestos o vuelve más tarde.
+                    </div>
                 }
-                <div class="small mt-3" style="color:#cfe0f1"><i class="bi bi-info-circle" aria-hidden="true"></i> Los precios son referenciales y pueden variar.</div>
+
+                <div class="small mt-3" style="color:#cfe0f1">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    Los precios son referenciales y pueden variar.
+                </div>
             </div>
         </div>
     </div>
 
     <ul class="nav rx-tabs mt-4" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-comp" type="button" role="tab">
-                <i class="bi bi-car-front" aria-hidden="true"></i> Compatibilidad <span class="badge rounded-pill">@Model.Vehiculos.Count</span>
+            <button class="nav-link active"
+                    data-bs-toggle="tab"
+                    data-bs-target="#tab-comp"
+                    type="button"
+                    role="tab">
+                <i class="bi bi-car-front" aria-hidden="true"></i>
+                Compatibilidad
+                <span class="badge rounded-pill">
+                    @Model.Vehiculos.Count
+                </span>
             </button>
         </li>
+
         <li class="nav-item" role="presentation">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-equiv" type="button" role="tab">
-                <i class="bi bi-arrow-left-right" aria-hidden="true"></i> Equivalencias <span class="badge rounded-pill">@Model.Equivalencias.Count</span>
+            <button class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#tab-equiv"
+                    type="button"
+                    role="tab">
+                <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+                Equivalencias
+                <span class="badge rounded-pill">
+                    @Model.Equivalencias.Count
+                </span>
             </button>
         </li>
+
         <li class="nav-item" role="presentation">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-prov" type="button" role="tab">
-                <i class="bi bi-shop" aria-hidden="true"></i> Proveedores <span class="badge rounded-pill">@Model.Ofertas.Count</span>
+            <button class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#tab-prov"
+                    type="button"
+                    role="tab">
+                <i class="bi bi-shop" aria-hidden="true"></i>
+                Proveedores
+                <span class="badge rounded-pill">
+                    @Model.Ofertas.Count
+                </span>
             </button>
         </li>
     </ul>
 
     <div class="tab-content rx-tab-body">
-        <div class="tab-pane fade show active" id="tab-comp" role="tabpanel">
+        <div class="tab-pane fade show active"
+             id="tab-comp"
+             role="tabpanel">
+
             @if (Model.Vehiculos.Count == 0)
             {
-                <p class="text-secondary mb-0">Sin vehículos compatibles registrados.</p>
+                <p class="text-secondary mb-0">
+                    Sin vehículos compatibles registrados.
+                </p>
             }
             else
             {
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
-                            <tr><th>Marca</th><th>Modelo</th><th>Año</th><th>Motor</th><th>Transmisión</th><th>Combustible</th><th>Nota</th></tr>
+                            <tr>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Año</th>
+                                <th>Motor</th>
+                                <th>Transmisión</th>
+                                <th>Combustible</th>
+                                <th>Nota</th>
+                            </tr>
                         </thead>
                         <tbody>
                             @foreach (var v in Model.Vehiculos)
                             {
                                 <tr>
-                                    <td class="fw-semibold">@v.Marca</td><td>@v.Modelo</td><td>@v.Anio</td><td>@v.Motor</td>
-                                    <td>@v.Transmision</td><td>@v.Combustible</td><td class="text-secondary small">@v.Nota</td>
+                                    <td class="fw-semibold">@v.Marca</td>
+                                    <td>@v.Modelo</td>
+                                    <td>@v.Anio</td>
+                                    <td>@v.Motor</td>
+                                    <td>@v.Transmision</td>
+                                    <td>@v.Combustible</td>
+                                    <td class="text-secondary small">@v.Nota</td>
                                 </tr>
                             }
                         </tbody>
@@ -110,25 +225,45 @@
             }
         </div>
 
-        <div class="tab-pane fade" id="tab-equiv" role="tabpanel">
+        <div class="tab-pane fade"
+             id="tab-equiv"
+             role="tabpanel">
+
             @if (Model.Equivalencias.Count == 0)
             {
-                <p class="text-secondary mb-0">Sin equivalencias registradas.</p>
+                <p class="text-secondary mb-0">
+                    Sin equivalencias registradas.
+                </p>
             }
             else
             {
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead><tr><th>Número alterno</th><th>Fabricante</th><th></th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Número alterno</th>
+                                <th>Fabricante</th>
+                                <th></th>
+                            </tr>
+                        </thead>
                         <tbody>
                             @foreach (var e in Model.Equivalencias)
                             {
                                 <tr>
-                                    <td><span class="rx-code-lg">@e.NumeroAlterno</span></td>
+                                    <td>
+                                        <span class="rx-code-lg">
+                                            @e.NumeroAlterno
+                                        </span>
+                                    </td>
                                     <td>@e.Fabricante</td>
                                     <td class="text-end">
-                                        <button type="button" class="rx-copy" data-copy="@e.NumeroAlterno" aria-label="Copiar número alterno">
-                                            <i class="bi bi-clipboard" aria-hidden="true"></i> Copiar
+                                        <button type="button"
+                                                class="rx-copy"
+                                                data-copy="@e.NumeroAlterno"
+                                                aria-label="Copiar número alterno">
+                                            <i class="bi bi-clipboard"
+                                               aria-hidden="true"></i>
+                                            Copiar
                                         </button>
                                     </td>
                                 </tr>
@@ -139,33 +274,58 @@
             }
         </div>
 
-        <div class="tab-pane fade" id="tab-prov" role="tabpanel">
+        <div class="tab-pane fade"
+             id="tab-prov"
+             role="tabpanel">
+
             @if (Model.Ofertas.Count == 0)
             {
-                <p class="text-secondary mb-0">Ningún proveedor ofrece este repuesto por ahora.</p>
+                <p class="text-secondary mb-0">
+                    Ningún proveedor ofrece este repuesto por ahora.
+                </p>
             }
             else
             {
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead><tr><th>Proveedor</th><th>Precio referencial</th><th>Existencia</th><th>Actualizado</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Proveedor</th>
+                                <th>Precio referencial</th>
+                                <th>Existencia</th>
+                                <th>Actualizado</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             @foreach (var o in Model.Ofertas)
                             {
                                 <tr>
-                                    <td class="fw-semibold">@o.Proveedor</td>
-                                    <td class="fw-bold">$@o.PrecioRef.ToString("N2", CultureInfo.InvariantCulture)</td>
+                                    <td class="fw-semibold">
+                                        @o.Proveedor
+                                    </td>
+
+                                    <td class="fw-bold">
+                                        $@o.PrecioRef.ToString("N2", CultureInfo.InvariantCulture)
+                                    </td>
+
                                     <td>
                                         @if (o.Existencia > 0)
                                         {
-                                            <span class="rx-pill rx-pill-ok">@o.Existencia unidades</span>
+                                            <span class="rx-pill rx-pill-ok">
+                                                @o.Existencia unidades
+                                            </span>
                                         }
                                         else
                                         {
-                                            <span class="rx-pill rx-pill-no">Agotado</span>
+                                            <span class="rx-pill rx-pill-no">
+                                                Agotado
+                                            </span>
                                         }
                                     </td>
-                                    <td class="text-secondary small">@o.FechaActualizacion.ToString("dd/MM/yyyy")</td>
+
+                                    <td class="text-secondary small">
+                                        @o.FechaActualizacion.ToString("dd/MM/yyyy")
+                                    </td>
                                 </tr>
                             }
                         </tbody>

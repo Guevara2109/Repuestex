@@ -249,7 +249,7 @@ public class CatalogoRepository
     public async Task<List<OfertaProveedor>> ObtenerOfertasAsync(int id)
     {
         const string sql = @"
-            SELECT p.nombre AS proveedor, o.precio_ref, o.existencia, o.fecha_actualizacion
+            SELECT o.id_proveedor, p.nombre AS proveedor, o.precio_ref, o.existencia, o.fecha_actualizacion
             FROM oferta o
             JOIN proveedor p ON p.id_proveedor = o.id_proveedor
             WHERE o.id_repuesto = @id AND p.activo = 1

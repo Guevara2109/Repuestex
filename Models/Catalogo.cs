@@ -77,4 +77,5 @@ public class OfertaProveedor
     public decimal PrecioRef { get; set; }
     public int Existencia { get; set; }
     public DateTime FechaActualizacion { get; set; }
+    public int IdProveedor { get; internal set; }
 }
